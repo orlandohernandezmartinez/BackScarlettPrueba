@@ -1,0 +1,19 @@
+# Entornos virtuales
+venv/
+.env
+
+# Archivos temporales / caché
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de configuración de IDE
+.vscode/
+.idea/
+
+# Archivos de sistema
+.DS_Store
+
+# Archivos estáticos generados (opcional si quieres ignorarlos en git)
+static/output_audio.mp3
