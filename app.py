@@ -133,4 +133,5 @@ def gpt_tts_endpoint():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Puerto que asigna Railway
+    app.run(host="0.0.0.0", port=port)        # Escucha en todas las interfaces
