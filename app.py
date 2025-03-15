@@ -1,16 +1,16 @@
-from flask import Flask, request, jsonify, url_for
-from openai import OpenAI
-import requests
-import time
 import os
+import time
+import requests
+import openai
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify, url_for
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# Inicializa el cliente de OpenAI con la nueva API
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Configura la API key de OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
 
 conversation_history = []
@@ -27,15 +27,16 @@ def generate_gpt_response(history):
         )
     }
 
+    # Últimos 10 mensajes del historial
     messages = [system_prompt] + history[-10:]
     
-    response = client.chat.completions.create(
+    # Llamada a ChatCompletion con la librería oficial
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages
     )
     
-    full_response = response.choices[0].message.content
-    return full_response
+    return response.choices[0].message.content
 
 def eleven_labs_text_to_speech(text):
     voice_id = "5foAkxpX0K5wizIaF5vu"
