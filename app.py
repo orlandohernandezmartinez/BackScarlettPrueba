@@ -9,24 +9,18 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Configuración de OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# ElevenLabs API Key
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
 
-# Historial de conversación
 conversation_history = []
 
 def generate_gpt_response(history):
-    print("✅ Entrando en generate_gpt_response()")
+    print("✅ Generando respuesta GPT...")
 
     system_prompt = {
         "role": "system",
         "content": (
-            "Eres AVA, la primer agente virtual de la Secretaría de Agricultura y Desarrollo Rural "
-            "especializado en la agroindustria y el desarrollo rural del estado de Puebla. "
-            "Responde de forma clara y concisa, en un estilo cercano, pero profesional."
+            "Eres AVA, la primer agente virtual de la Secretaría de Agricultura y Desarrollo Rural especializado..."
         )
     }
 
@@ -36,20 +30,20 @@ def generate_gpt_response(history):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
-            timeout=8,  # ⚡️ Control de tiempo en la llamada
+            timeout=10  # Evitar que se cuelgue
         )
 
         full_response = response.choices[0].message.content
-        print(f"✅ Respuesta completa generada: {full_response[:100]}...")
+        print("✅ Respuesta GPT generada")
 
         return full_response
 
     except Exception as e:
-        print(f"❌ Error en generate_gpt_response(): {str(e)}")
-        return "Lo siento, hubo un error al generar la respuesta."
+        print(f"❌ Error en GPT: {str(e)}")
+        return "Lo siento, no puedo responder ahora."
 
 def eleven_labs_text_to_speech(text):
-    print("✅ Entrando en eleven_labs_text_to_speech()")
+    print("✅ Generando audio en ElevenLabs...")
 
     voice_id = "5foAkxpX0K5wizIaF5vu"
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
@@ -83,25 +77,24 @@ def eleven_labs_text_to_speech(text):
             timestamp = int(time.time())
             audio_url = url_for("static", filename="output_audio.mp3", _external=True) + f"?t={timestamp}"
 
-            print(f"✅ Audio generado correctamente en: {audio_url}")
-
+            print(f"✅ Audio listo en: {audio_url}")
             return audio_url
 
         else:
-            print(f"❌ Error en ElevenLabs: {resp.status_code} => {resp.text}")
+            print(f"❌ Error en ElevenLabs: {resp.status_code} {resp.text}")
             return None
 
     except Exception as e:
-        print(f"❌ Error al conectar con ElevenLabs: {str(e)}")
+        print(f"❌ Error ElevenLabs: {str(e)}")
         return None
 
 @app.route("/gpt-tts", methods=["POST"])
 def gpt_tts_endpoint():
     global conversation_history
 
-    print("✅ Nueva solicitud en /gpt-tts")
-
+    print("✅ Nueva solicitud recibida")
     data = request.get_json()
+
     user_text = data.get("message", "").strip()
 
     if not user_text:
